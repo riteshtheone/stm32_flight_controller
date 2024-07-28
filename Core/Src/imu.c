@@ -5,10 +5,10 @@
  *      Author: Ritesh Kumar
  */
 
-#include <math.h>
 #include "imu.h"
+#include <math.h>
 
-static int16_t clamp(int16_t value);
+static void clamp(int16_t *value);
 
 void calculate_angle(IMU *imu, int16_t gyro_x, int16_t gyro_y, int16_t gyro_z) {
 	imu->angle_roll  += (float) gyro_x * 0.000061069;
@@ -23,9 +23,9 @@ void calculate_angle(IMU *imu, int16_t gyro_x, int16_t gyro_y, int16_t gyro_z) {
 
 void calculate_acc_angle(IMU *imu, int16_t acc_x, int16_t acc_y, int16_t acc_z) {
 	acc_z += 4096;
-	acc_x = clamp(acc_x);
-	acc_y = clamp(acc_y);
-	acc_z = clamp(acc_z);
+	clamp(&acc_x);
+	clamp(&acc_y);
+	clamp(&acc_z);
     imu->acc.roll  = (float)atan(acc_y / sqrt(pow(acc_x, 2) + pow(acc_z, 2))) * 57.29578;
     imu->acc.pitch = (float)atan(acc_x / sqrt(pow(acc_y, 2) + pow(acc_z, 2))) * 57.29578;
     imu->acc.pitch *= -1;
@@ -39,10 +39,8 @@ void calculate_rotational_rate(IMU *imu, int16_t gyro_x, int16_t gyro_y, int16_t
 	imu->rate.yaw *= -1;
 }
 
-static int16_t clamp(int16_t value) {
-	int16_t max = 4096;
-	int16_t min = -4096;
-	if (value > max) return max;
-	if (value < min) return min;
-	return value;
+static void clamp(int16_t *value) {
+	int16_t max = 4096, min = -4096;
+	if (*value > max) *value = max;
+	if (*value < min) *value = min;
 }

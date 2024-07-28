@@ -22,3 +22,8 @@ uint32_t micros(void) {
                ? (m1 * 1000 + ((tms - u1) * 1000) / tms)
                : (m0 * 1000 + ((tms - u0) * 1000) / tms);
 }
+
+void clamp(uint16_t *value, uint16_t min, uint16_t max) {
+	if (*value > max) *value = max;
+	if (*value < min) *value = min;
+}

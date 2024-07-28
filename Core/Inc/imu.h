@@ -8,7 +8,7 @@
 #ifndef INC_IMU_H_
 #define INC_IMU_H_
 
-#include "main.h"
+#include <stdint.h>
 
 typedef struct {
 

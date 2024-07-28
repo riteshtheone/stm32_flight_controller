@@ -3,12 +3,15 @@
 /* USER CODE BEGIN Includes */
 #include "mpu6050.h"
 #include "imu.h"
+#include "pid.h"
 #include "utils.h"
 
 uint32_t iteration_timer;
+uint16_t esc[4];
 
 IMU imu;
 MPU6050 mpu;
+PID_Controller pid;
 /* USER CODE END Includes */
 
 I2C_HandleTypeDef hi2c1;
@@ -37,6 +40,28 @@ int main(void) {
 			calculate_rotational_rate(&imu, mpu.gyro.x, mpu.gyro.y, mpu.gyro.z);
 			calculate_acc_angle(&imu, mpu.acc.x, mpu.acc.y, mpu.acc.z);
 			calculate_angle(&imu, mpu.gyro.x, mpu.gyro.y, mpu.gyro.z);
+
+			pid.setpoint.roll = 0;
+			pid.setpoint.roll -= imu.angle_roll * 18;
+			pid.setpoint.roll /= 3.0;
+
+			pid.setpoint.pitch = 0;
+			pid.setpoint.pitch -= imu.angle_pitch * 18;
+			pid.setpoint.pitch /= 3.0;
+
+			pid.setpoint.yaw = 0;
+
+			calculate_pid(&pid, imu.rate.roll, imu.rate.pitch, imu.rate.yaw);
+
+			esc[0] = 1300 + pid.output.roll - pid.output.pitch -  pid.output.yaw;
+			esc[1] = 1300 + pid.output.roll + pid.output.pitch +  pid.output.yaw;
+			esc[2] = 1300 - pid.output.roll + pid.output.pitch -  pid.output.yaw;
+			esc[3] = 1300 - pid.output.roll - pid.output.pitch +  pid.output.yaw;
+
+			clamp(&esc[0], 1170, 2000);
+			clamp(&esc[1], 1170, 2000);
+			clamp(&esc[2], 1170, 2000);
+			clamp(&esc[3], 1170, 2000);
 		}
 	}
 	/* USER CODE END 3 */

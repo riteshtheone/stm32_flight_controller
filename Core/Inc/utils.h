@@ -12,5 +12,6 @@
 
 uint32_t millis(void);
 uint32_t micros(void);
+void clamp(uint16_t *value, uint16_t min, uint16_t max);
 
 #endif /* INC_UTILS_H_ */
