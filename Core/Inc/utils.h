@@ -14,4 +14,6 @@ uint32_t millis(void);
 uint32_t micros(void);
 void clamp(uint16_t *value, uint16_t min, uint16_t max);
 
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim);
+
 #endif /* INC_UTILS_H_ */

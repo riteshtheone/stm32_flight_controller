@@ -25,5 +25,6 @@ typedef struct {
 } PID_Controller;
 
 void calculate_pid(PID_Controller *pid, float roll_rate, float pitch_rate, float yaw_rate);
+void flush_pid(void);
 
 #endif /* INC_PID_H_ */

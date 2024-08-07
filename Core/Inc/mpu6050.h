@@ -34,4 +34,6 @@ void mpu6050_init(I2C_HandleTypeDef *hi2c);
 void mpu6050_signals(MPU6050 *mpu, I2C_HandleTypeDef *hi2c);
 void mpu6050_calibrate(MPU6050 *mpu, I2C_HandleTypeDef *hi2c);
 
+void mpu6050_correct_direction(MPU6050 *mpu);
+
 #endif /* INC_MPU6050_H_ */

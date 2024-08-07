@@ -17,6 +17,7 @@ void mpu6050_init(I2C_HandleTypeDef *hi2c) {
 		HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, 0x1C, 1, (uint8_t*) &(uint8_t ) { 0x10 }, 1, HAL_MAX_DELAY);
 		HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, 0x1B, 1, (uint8_t*) &(uint8_t ) { 0x08 }, 1, HAL_MAX_DELAY);
 	} else Error_Handler();
+	HAL_Delay(2000);
 }
 
 void mpu6050_signals(MPU6050 *mpu, I2C_HandleTypeDef *hi2c) {
@@ -45,6 +46,15 @@ void mpu6050_calibrate(MPU6050 *mpu, I2C_HandleTypeDef *hi2c) {
 	int32_t gyro_temp[3] = { 0 };
 
 	for (int i = 0; i < 2000; i++) {
+		if (i % 120 == 0) HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		mpu6050_signals(mpu, hi2c);
+		HAL_Delay(4);
+	}
+
+	const int16_t n = 2000;
+
+	for (int i = 0; i < n; i++) {
+		if (i % 80 == 0) HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		mpu6050_signals(mpu, hi2c);
 		acc_temp[0]  += mpu->acc.x;
 		acc_temp[1]  += mpu->acc.y;
@@ -55,14 +65,19 @@ void mpu6050_calibrate(MPU6050 *mpu, I2C_HandleTypeDef *hi2c) {
 		HAL_Delay(4);
 	}
 
-	acc_temp[0]  /= 2000;
-	acc_temp[1]  /= 2000;
-	acc_temp[2]  /= 2000;
-	gyro_temp[0] /= 2000;
-	gyro_temp[1] /= 2000;
-	gyro_temp[2] /= 2000;
+	acc_temp[0]  /= n;
+	acc_temp[1]  /= n;
+	acc_temp[2]  /= n;
+	gyro_temp[0] /= n;
+	gyro_temp[1] /= n;
+	gyro_temp[2] /= n;
 
 	update_cal(mpu, acc_temp[0], acc_temp[1], acc_temp[2], gyro_temp[0], gyro_temp[1], gyro_temp[2]);
+}
+
+void mpu6050_correct_direction(MPU6050 *mpu) {
+	mpu->gyro.y *= -1;
+	mpu->gyro.z *= -1;
 }
 
 static void update_acc(MPU6050 *mpu, int16_t raw_ax, int16_t raw_ay, int16_t raw_az) {

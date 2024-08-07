@@ -16,6 +16,15 @@ static PID_Constant pid_const = {
 static float pid_error_temp, pid_i_mem_roll, pid_i_mem_pitch, pid_i_mem_yaw ;
 static float pid_last_roll_d_error, pid_last_pitch_d_error, pid_last_yaw_d_error;
 
+void flush_pid(void) {
+	pid_i_mem_roll = 0;
+	pid_last_roll_d_error = 0;
+	pid_i_mem_pitch = 0;
+	pid_last_pitch_d_error = 0;
+	pid_i_mem_yaw = 0;
+	pid_last_yaw_d_error = 0;
+}
+
 void calculate_pid(PID_Controller *pid, float roll_rate, float pitch_rate, float yaw_rate) {
 
 	//Roll calculations

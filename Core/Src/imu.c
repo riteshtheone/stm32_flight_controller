@@ -8,7 +8,7 @@
 #include "imu.h"
 #include <math.h>
 
-static void clamp(int16_t *value);
+static void acc_clamp(int16_t *value);
 
 void calculate_angle(IMU *imu, int16_t gyro_x, int16_t gyro_y, int16_t gyro_z) {
 	imu->angle_roll  += (float) gyro_x * 0.000061069;
@@ -23,12 +23,11 @@ void calculate_angle(IMU *imu, int16_t gyro_x, int16_t gyro_y, int16_t gyro_z) {
 
 void calculate_acc_angle(IMU *imu, int16_t acc_x, int16_t acc_y, int16_t acc_z) {
 	acc_z += 4096;
-	clamp(&acc_x);
-	clamp(&acc_y);
-	clamp(&acc_z);
+	acc_clamp(&acc_x);
+	acc_clamp(&acc_y);
+	acc_clamp(&acc_z);
     imu->acc.roll  = (float)atan(acc_y / sqrt(pow(acc_x, 2) + pow(acc_z, 2))) * 57.29578;
     imu->acc.pitch = (float)atan(acc_x / sqrt(pow(acc_y, 2) + pow(acc_z, 2))) * 57.29578;
-    imu->acc.pitch *= -1;
 }
 
 
@@ -36,10 +35,9 @@ void calculate_rotational_rate(IMU *imu, int16_t gyro_x, int16_t gyro_y, int16_t
 	imu->rate.roll  = imu->rate.roll  * 0.7 + ((float)gyro_x / 65.5) * 0.3;
 	imu->rate.pitch = imu->rate.pitch * 0.7 + ((float)gyro_y / 65.5) * 0.3;
 	imu->rate.yaw   = imu->rate.yaw   * 0.7 + ((float)gyro_z / 65.5) * 0.3;
-	imu->rate.yaw *= -1;
 }
 
-static void clamp(int16_t *value) {
+static void acc_clamp(int16_t *value) {
 	int16_t max = 4096, min = -4096;
 	if (*value > max) *value = max;
 	if (*value < min) *value = min;
